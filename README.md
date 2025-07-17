@@ -11,7 +11,7 @@ http://forum.xda-developers.com/showthread.php?t=2718943
 
 Development
 ===========
-If you want to help developing the app, this will work as an example (tested on Ubuntu 19.10):
+If you want to help developing the app, this will work as an example (tested on Ubuntu 24.04):
 
 - Install and open Android Studio
 - [Created a virtual AVD Device](https://developer.android.com/studio/run/managing-avds#createavd)

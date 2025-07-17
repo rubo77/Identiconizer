@@ -22,6 +22,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.pm.ServiceInfo;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -59,7 +60,12 @@ public class IdenticonCreationService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        startForeground(SERVICE_NOTIFICATION_ID, createNotification());
+        // For Android 12+ (API 31+), foreground service type must be specified
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(SERVICE_NOTIFICATION_ID, createNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+        } else {
+            startForeground(SERVICE_NOTIFICATION_ID, createNotification());
+        }
         // If a predefined contacts list is provided, use it directly.
         // contactsList is set when this service is started from ContactsListActivity.
         if (intent.hasExtra("contactsList")) {
