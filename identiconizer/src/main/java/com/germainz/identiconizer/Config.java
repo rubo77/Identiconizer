@@ -19,11 +19,10 @@ package com.germainz.identiconizer;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import de.robv.android.xposed.XSharedPreferences;
+
 
 public class Config {
     private static Config mInstance;
-    private XSharedPreferences mXPreferences = null;
     private SharedPreferences mPreferences = null;
 
     public static final String PACKAGE_NAME = "com.germainz.identiconizer";
@@ -41,11 +40,6 @@ public class Config {
     public static final String PREF_ABOUT = "about";
     public static final String PREF_MAX_CONTACT_ID = "max_contact_id";
 
-    public Config() {
-        mXPreferences = new XSharedPreferences(PACKAGE_NAME, PREFS);
-        mXPreferences.makeWorldReadable();
-    }
-
     private Config(Context context) {
         mPreferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
@@ -57,8 +51,7 @@ public class Config {
     }
 
     public void reload() {
-        if (mXPreferences != null)
-            mXPreferences.reload();
+        // Xposed wurde entfernt, keine Reload-Funktion mehr benötigt
     }
 
     public boolean isEnabled() {
@@ -125,30 +118,15 @@ public class Config {
         mPreferences.edit().putInt(PREF_MAX_CONTACT_ID, id).commit();
     }
 
-    public String getString(String key, String defaultValue) {
-        String returnResult = defaultValue;
-        if (mPreferences != null)
-            returnResult = mPreferences.getString(key, defaultValue);
-        else if (mXPreferences != null)
-            returnResult = mXPreferences.getString(key, defaultValue);
-        return returnResult;
+    private String getString(String key, String defaultValue) {
+        return mPreferences.getString(key, defaultValue);
     }
 
-    public int getInt(String key, int defaultValue) {
-        int returnResult = defaultValue;
-        if (mPreferences != null)
-            returnResult = mPreferences.getInt(key, defaultValue);
-        else if (mXPreferences != null)
-            returnResult = mXPreferences.getInt(key, defaultValue);
-        return returnResult;
+    private int getInt(String key, int defaultValue) {
+        return mPreferences.getInt(key, defaultValue);
     }
 
-    public boolean getBoolean(String key, boolean defaultValue) {
-        boolean returnResult = defaultValue;
-        if (mPreferences != null)
-            returnResult = mPreferences.getBoolean(key, defaultValue);
-        else if (mXPreferences != null)
-            returnResult = mXPreferences.getBoolean(key, defaultValue);
-        return returnResult;
+    private boolean getBoolean(String key, boolean defaultValue) {
+        return mPreferences.getBoolean(key, defaultValue);
     }
 }

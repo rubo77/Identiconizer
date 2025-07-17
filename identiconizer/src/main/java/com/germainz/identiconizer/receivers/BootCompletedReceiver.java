@@ -27,7 +27,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Config config = Config.getInstance(context);
-        if (config.isEnabled() && !config.isXposedModActive())
+        if (config.isEnabled())
             context.startService(new Intent(context, ContactsObserverService.class));
     }
 }

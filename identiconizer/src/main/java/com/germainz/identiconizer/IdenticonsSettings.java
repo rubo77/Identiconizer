@@ -34,9 +34,9 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.provider.ContactsContract;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,7 +99,7 @@ public class IdenticonsSettings extends AppCompatPreferenceActivity implements O
 
         mEnabledPref = (SwitchPreference) findPreference(Config.PREF_ENABLED);
         mEnabledPref.setChecked(mConfig.isEnabled());
-        if (mEnabledPref.isChecked() && !mConfig.isXposedModActive())
+        if (mEnabledPref.isChecked())
             startService(new Intent(this, ContactsObserverService.class));
         mEnabledPref.setOnPreferenceChangeListener(this);
 
@@ -339,9 +339,9 @@ public class IdenticonsSettings extends AppCompatPreferenceActivity implements O
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         if (preference == mEnabledPref) {
             mConfig.setEnabled((Boolean) newValue);
-            if ((Boolean) newValue && !mConfig.isXposedModActive())
+            if ((Boolean) newValue)
                 startService(new Intent(this, ContactsObserverService.class));
-            else if (!mConfig.isXposedModActive())
+            else
                 stopService(new Intent(this, ContactsObserverService.class));
             return true;
         } else if (preference == mStylePref) {

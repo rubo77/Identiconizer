@@ -30,8 +30,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.ContactsContract;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import com.germainz.identiconizer.Config;
@@ -76,7 +76,7 @@ public class IdenticonCreationService extends IntentService {
         }
         if (mUpdateErrors.size() > 0 || mInsertErrors.size() > 0)
             createNotificationForError();
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("CONTACTS_UPDATED"));
+        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("CONTACTS_UPDATED"));
         getContentResolver().notifyChange(ContactsContract.Data.CONTENT_URI, null);
         stopForeground(true);
     }
