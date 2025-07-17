@@ -205,7 +205,7 @@ public class IdenticonCreationService extends IntentService {
             manager.createNotificationChannel(chan);
         }
         Intent intent = new Intent(this, IdenticonsSettings.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
         return new NotificationCompat.Builder(this, TAG)
                 .setAutoCancel(false)
                 .setOngoing(true)
@@ -219,7 +219,7 @@ public class IdenticonCreationService extends IntentService {
 
     private void updateNotification(String title, String text) {
         Intent intent = new Intent(this, IdenticonsSettings.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
         NotificationManager nm =
                 (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         @SuppressWarnings("deprecation")
