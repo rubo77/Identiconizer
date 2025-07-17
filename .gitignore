@@ -10,3 +10,4 @@ build/
 release/
 /captures
 .externalNativeBuild
+/.idea/appInsightsSettings.xml
