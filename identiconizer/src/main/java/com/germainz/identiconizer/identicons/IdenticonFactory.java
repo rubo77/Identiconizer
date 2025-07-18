@@ -31,6 +31,7 @@ public class IdenticonFactory {
     public static final int IDENTICON_STYLE_SPIROGRAPH = 2;
     public static final int IDENTICON_STYLE_DOTMATRIX = 3;
     public static final int IDENTICON_STYLE_GMAIL = 4;
+    public static final int IDENTICON_STYLE_UNICORNIFY = 5;
 
     /**
      * Get the appropriate identicon class based on the type passed in
@@ -43,6 +44,21 @@ public class IdenticonFactory {
      * @return
      */
     public static Identicon makeIdenticon(int type, int size, int bgColor, boolean serif, int length) {
+        return makeIdenticon(null, type, size, bgColor, serif, length);
+    }
+    
+    /**
+     * Get the appropriate identicon class based on the type passed in, with optional context
+     *
+     * @param context Optional context, required for UnicornifyIdenticon
+     * @param type Identicon type
+     * @param size Size of the identicon
+     * @param bgColor Background color
+     * @param serif Whether to use serif font
+     * @param length Length of text
+     * @return Appropriate Identicon implementation
+     */
+    public static Identicon makeIdenticon(Context context, int type, int size, int bgColor, boolean serif, int length) {
         Identicon.SIZE = size;
         Identicon.BG_COLOR = bgColor;
         Identicon.SERIF = serif;
@@ -58,8 +74,10 @@ public class IdenticonFactory {
                 return new DotMatrixIdenticon();
             case IDENTICON_STYLE_GMAIL:
                 return new LetterTile();
+            case IDENTICON_STYLE_UNICORNIFY:
+                return new UnicornifyIdenticon(context);
             default:
-                throw new IllegalArgumentException("Unkown identicon type.");
+                throw new IllegalArgumentException("Unknown identicon type.");
         }
     }
 
@@ -72,7 +90,7 @@ public class IdenticonFactory {
      */
     public static Identicon makeIdenticon(Context context) {
         Config config = Config.getInstance(context);
-        return makeIdenticon(config.getIdenticonStyle(), config.getIdenticonSize(), config.getIdenticonBgColor(), config.isIdenticonSerif(), config.getIdenticonLength());
+        return makeIdenticon(context, config.getIdenticonStyle(), config.getIdenticonSize(), config.getIdenticonBgColor(), config.isIdenticonSerif(), config.getIdenticonLength());
     }
 }
 

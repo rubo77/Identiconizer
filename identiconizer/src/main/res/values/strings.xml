@@ -67,6 +67,7 @@
     <string name="identicons_style_spirograph">Spirograph</string>
     <string name="identicons_style_dotmatrix">Dot matrix</string>
     <string name="identicons_style_gmail">Gmail</string>
+    <string name="identicons_style_unicornify">Unicornify</string>
     <!-- Used in the Holo ColorPicker dialog -->
     <string name="saturation">Saturation</string>
     <string name="value">Value</string>

@@ -23,6 +23,7 @@
         <item>@string/identicons_style_spirograph</item>
         <item>@string/identicons_style_dotmatrix</item>
         <item>@string/identicons_style_gmail</item>
+        <item>@string/identicons_style_unicornify</item>
     </string-array>
 
     <string-array name="identicons_style_values" translatable="false">
@@ -31,6 +32,7 @@
         <item>2</item>
         <item>3</item>
         <item>4</item>
+        <item>5</item>
     </string-array>
 
     <array name="identicons_style_icons" translatable="false">
@@ -39,6 +41,7 @@
         <item>@drawable/ic_identicons_style_spirograph</item>
         <item>@drawable/ic_identicons_style_dotmatrix</item>
         <item>@drawable/ic_identicons_style_gmail</item>
+        <item>@drawable/ic_identicons_style_unicornify</item>
     </array>
 
 </resources>

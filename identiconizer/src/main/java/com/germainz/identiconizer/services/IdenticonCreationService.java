@@ -34,6 +34,7 @@ import android.provider.ContactsContract;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.germainz.identiconizer.Config;
 import com.germainz.identiconizer.ContactInfo;
@@ -151,7 +152,15 @@ public class IdenticonCreationService extends IntentService {
             );
             final Identicon identicon = IdenticonFactory.makeIdenticon(this);
             final byte[] identiconImage = identicon.generateIdenticonByteArray(name);
-            setContactPhoto(getContentResolver(), identiconImage, contactId, name);
+            
+            // Check if the identicon generation was successful
+            // This is important for UnicornifyIdenticon which might return null when offline and no cached version exists
+            if (identiconImage != null) {
+                setContactPhoto(getContentResolver(), identiconImage, contactId, name);
+            } else {
+                // Skip this contact when offline and no cached avatar available
+                Log.w(TAG, "Skipping contact " + name + " - Cannot generate identicon (device may be offline)");
+            }
         }
     }
 

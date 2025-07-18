@@ -29,13 +29,6 @@
 
     <PreferenceCategory android:title="@string/used_libraries">
 
-        <Preference
-            android:summary="@string/xposed_api_summary"
-            android:title="@string/xposed_api_title">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://github.com/rovo89/XposedBridge" />
-        </Preference>
 
         <Preference
             android:summary="@string/holo_colorpicker_summary"
