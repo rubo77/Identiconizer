@@ -8,7 +8,7 @@ default picture.
 Features
 ========
 * Use identicons for newly created contacts. A service is normally used to detect new contacts. If you use the Xposed Framework, you can enable Identiconizer! as a module instead to integrate the application into the system.
-* Choose from six different identicon styles: Retro, Contemporary, Spirograph, Dot Matrix, Gmail, and Unicornify.
+* Choose from seven different identicon styles: Retro, Contemporary, Spirograph, Dot Matrix, Gmail, Unicornify, and Visiglyphs.
 * Specify the identicon sizes, from 96x96 up to 720x720 (256x256 max on ICS.)
 * Choose a custom background color for the created identicons.
 * Option to use serif fonts in Gmail style identicons.

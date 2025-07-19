@@ -1,1 +1,4 @@
 * Add new style "unicornify" using unicornify.pictures avatar service
+* Add new style "visiglyphs" with geometric pattern identicons
+* Unicornify avatars are now cached locally for offline use
+* Improved offline handling with user warnings

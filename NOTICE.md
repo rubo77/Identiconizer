@@ -83,3 +83,19 @@ Unicornify Style
      When offline, the app will display a warning message and use previously cached avatars.
      If no cached avatar is available for a contact, the app will skip that contact and
      preserve any existing photo
+
+Visiglyphs Style
+----------------
+     Based on Visiglyphs by Charles Darke @ digitalconsumption.com
+     Original PHP implementation: https://web.archive.org/web/20070929081457/http://digitalconsumption.com/files/pub-glyphs-beta.gz
+     
+     This style generates geometric pattern identicons using a 3x3 grid layout.
+     Each identicon consists of colorful geometric shapes (triangles, diamonds, spikes,
+     blocks, etc.) arranged in a symmetric pattern. The algorithm uses 16 different
+     pattern types that can be rotated and colored based on the contact's hash.
+     
+     The implementation is based on the original Visiglyphs algorithm which was
+     designed for IP address visualization but has been adapted for contact identicons.
+     All patterns are generated locally without requiring internet connectivity.
+     
+     Original Visiglyphs license: BSD-like (see original source for full terms)

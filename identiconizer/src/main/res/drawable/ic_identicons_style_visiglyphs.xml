@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- 3x3 grid background -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M2,2L22,2L22,22L2,22z" />
+    <!-- Grid lines -->
+    <path
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="0.5"
+        android:pathData="M8,2L8,22M16,2L16,22M2,8L22,8M2,16L22,16" />
+    <!-- Visiglyphs patterns in 3x3 grid -->
+    <!-- Top-left: Triangle -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M2,2L8,2L2,8z" />
+    <!-- Top-center: Diamond -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M12,2L16,5L12,8L8,5z" />
+    <!-- Top-right: Triangle (mirrored) -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M16,2L22,2L22,8z" />
+    <!-- Middle-left: Half block -->
+    <path
+        android:fillColor="#FF9800"
+        android:pathData="M2,8L5,8L5,16L2,16z" />
+    <!-- Center: Complex pattern -->
+    <path
+        android:fillColor="#9C27B0"
+        android:pathData="M8,8L16,8L12,12z" />
+    <path
+        android:fillColor="#9C27B0"
+        android:pathData="M8,16L16,16L12,12z" />
+    <!-- Middle-right: Half block (mirrored) -->
+    <path
+        android:fillColor="#FF9800"
+        android:pathData="M19,8L22,8L22,16L19,16z" />
+    <!-- Bottom-left: Triangle -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M2,16L2,22L8,22z" />
+    <!-- Bottom-center: Diamond -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M12,16L16,19L12,22L8,19z" />
+    <!-- Bottom-right: Triangle (mirrored) -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M16,16L22,22L16,22z" />
+</vector>
