@@ -4,10 +4,11 @@
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
+/.idea/appInsightsSettings.xml
+/.idea/deviceManager.xml
 /.idea/caches
 .DS_Store
 build/
 release/
 /captures
-.externalNativeBuild
-/.idea/appInsightsSettings.xml
+.externalNativeBuild/

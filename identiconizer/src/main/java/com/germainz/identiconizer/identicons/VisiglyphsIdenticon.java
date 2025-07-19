@@ -22,6 +22,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Matrix;
+import android.graphics.Rect;
 
 import java.io.ByteArrayOutputStream;
 
@@ -45,12 +47,12 @@ public class VisiglyphsIdenticon extends Identicon {
         }
         String hexString = hexHash.toString();
 
-        // Extract pattern and color information from hash
-        int pattern1 = Integer.parseInt(hexString.substring(0, 1), 16) % 16 + 1;
-        int pattern2 = Integer.parseInt(hexString.substring(1, 2), 16) % 16 + 1;
-        int centerPattern = Integer.parseInt(hexString.substring(2, 3), 16) & 7;
-        int rotation1 = Integer.parseInt(hexString.substring(3, 4), 16) & 3;
-        int rotation2 = Integer.parseInt(hexString.substring(4, 5), 16) & 3;
+        // Extract pattern and color information from hash - exactly matching PHP
+        int i = Integer.parseInt(hexString.substring(0, 1), 16); // block 1 pattern
+        int j = Integer.parseInt(hexString.substring(1, 2), 16); // block 2 pattern  
+        int k = Integer.parseInt(hexString.substring(2, 3), 16) & 7; // center pattern
+        int rot1 = Integer.parseInt(hexString.substring(3, 4), 16) & 3; // rotation 1
+        int rot2 = Integer.parseInt(hexString.substring(4, 5), 16) & 3; // rotation 2
 
         // Extract colors from hash (ensure contrast by AND'ing foreground with 239)
         int fgR = Integer.parseInt(hexString.substring(5, 7), 16) & 239;
@@ -59,13 +61,15 @@ public class VisiglyphsIdenticon extends Identicon {
         int fgR2 = Integer.parseInt(hexString.substring(11, 13), 16) & 239;
         int fgG2 = Integer.parseInt(hexString.substring(13, 15), 16) & 239;
         int fgB2 = Integer.parseInt(hexString.substring(15, 17), 16) & 239;
-        int bgR = Integer.parseInt(hexString.substring(17, 19), 16);
-        int bgG = Integer.parseInt(hexString.substring(19, 21), 16);
-        int bgB = Integer.parseInt(hexString.substring(21, 23), 16);
+        
+        // Background color - using white as in PHP default
+        int bgR = 255;
+        int bgG = 255;
+        int bgB = 255;
 
-        return generateVisiglyphBitmap(SIZE, pattern1, pattern2, centerPattern, 
-                                     rotation1, rotation2, fgR, fgG, fgB, 
-                                     fgR2, fgG2, fgB2, bgR, bgG, bgB);
+        return generateVisiglyphBitmap(SIZE, i, j, k, rot1, rot2, 
+                                     fgR, fgG, fgB, fgR2, fgG2, fgB2, 
+                                     bgR, bgG, bgB);
     }
 
     /**
@@ -119,54 +123,147 @@ public class VisiglyphsIdenticon extends Identicon {
     }
 
     /**
-     * Generates the actual visiglyphs bitmap
+     * Generates the actual visiglyphs bitmap - exactly matching the PHP glyph() function
      */
-    private Bitmap generateVisiglyphBitmap(int blockSize, int pattern1, int pattern2, int centerPattern,
-                                          int rotation1, int rotation2, int fgR, int fgG, int fgB,
+    private Bitmap generateVisiglyphBitmap(int blockSize, int i, int j, int k,
+                                          int rot1, int rot2, int fgR, int fgG, int fgB,
                                           int fgR2, int fgG2, int fgB2, int bgR, int bgG, int bgB) {
         
         int imgSize = blockSize * 3;
+        float quarter = blockSize / 4.0f;
+        float quarter3 = quarter * 3;
+        float half = blockSize / 2.0f;
+        float third = blockSize / 3.0f;
+        float center = imgSize / 2.0f;
+        
+        // Create main bitmap
         Bitmap bitmap = Bitmap.createBitmap(imgSize, imgSize, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
-        
-        // Fill background
         canvas.drawColor(Color.rgb(bgR, bgG, bgB));
         
         Paint paint = new Paint();
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.FILL);
+        
+        // Create temporary bitmaps for rotation
+        Bitmap tempBlock = Bitmap.createBitmap(blockSize * 2, blockSize, Bitmap.Config.ARGB_8888);
+        Bitmap rotateTemp = Bitmap.createBitmap(blockSize, blockSize, Bitmap.Config.ARGB_8888);
+        
+        // Draw first pattern at origin (0,0)
         paint.setColor(Color.rgb(fgR, fgG, fgB));
+        drawPatternOnCanvas(canvas, paint, i, 0, 0, blockSize);
         
-        // Draw patterns in 4 corners (mirrored)
-        drawPattern(canvas, paint, pattern1, 0, 0, blockSize, 0);
-        drawPattern(canvas, paint, pattern1, blockSize * 2, 0, blockSize, 1);
-        drawPattern(canvas, paint, pattern1, 0, blockSize * 2, blockSize, 3);
-        drawPattern(canvas, paint, pattern1, blockSize * 2, blockSize * 2, blockSize, 2);
+        // Copy block for rotation
+        Canvas rotateTempCanvas = new Canvas(rotateTemp);
+        rotateTempCanvas.drawColor(Color.rgb(bgR, bgG, bgB));
+        rotateTempCanvas.drawBitmap(bitmap, new Rect(0, 0, blockSize, blockSize), new Rect(0, 0, blockSize, blockSize), null);
         
-        // Draw center pattern if needed
-        if (centerPattern > 0) {
-            paint.setColor(Color.rgb(fgR2, fgG2, fgB2));
-            drawPattern(canvas, paint, centerPattern, blockSize, blockSize, blockSize, rotation1);
+        // Rotate first block
+        if (rot1 > 0) {
+            Matrix matrix = new Matrix();
+            matrix.postRotate(rot1 * 90, blockSize / 2.0f, blockSize / 2.0f);
+            rotateTemp = Bitmap.createBitmap(rotateTemp, 0, 0, blockSize, blockSize, matrix, true);
+        }
+        
+        // Clear and redraw rotated first block
+        canvas.drawColor(Color.rgb(bgR, bgG, bgB));
+        canvas.drawBitmap(rotateTemp, 0, 0, null);
+        
+        // Draw second pattern at (blockSize, 0)
+        paint.setColor(Color.rgb(fgR2, fgG2, fgB2));
+        drawPatternOnCanvas(canvas, paint, j, blockSize, 0, blockSize);
+        
+        // Copy second block for rotation
+        rotateTempCanvas.drawColor(Color.rgb(bgR, bgG, bgB));
+        rotateTempCanvas.drawBitmap(bitmap, new Rect(blockSize, 0, blockSize * 2, blockSize), new Rect(0, 0, blockSize, blockSize), null);
+        
+        // Rotate second block
+        if (rot2 > 0) {
+            Matrix matrix = new Matrix();
+            matrix.postRotate(rot2 * 90, blockSize / 2.0f, blockSize / 2.0f);
+            rotateTemp = Bitmap.createBitmap(rotateTemp, 0, 0, blockSize, blockSize, matrix, true);
+        }
+        
+        // Redraw second block rotated
+        canvas.drawBitmap(rotateTemp, blockSize, 0, null);
+        
+        // Copy blocks to form radial pattern (matching PHP roundabout loop)
+        Canvas tempBlockCanvas = new Canvas(tempBlock);
+        for (int roundabout = 0; roundabout < 3; roundabout++) {
+            // Copy current blocks
+            tempBlockCanvas.drawColor(Color.rgb(bgR, bgG, bgB));
+            tempBlockCanvas.drawBitmap(bitmap, new Rect(0, 0, blockSize * 2, blockSize), new Rect(0, 0, blockSize * 2, blockSize), null);
+            
+            // Rotate entire image 90 degrees
+            Matrix matrix = new Matrix();
+            matrix.postRotate(90, imgSize / 2.0f, imgSize / 2.0f);
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, imgSize, imgSize, matrix, true);
+            canvas = new Canvas(bitmap);
+            
+            // Paste back the copied blocks
+            canvas.drawBitmap(tempBlock, 0, 0, null);
+        }
+        
+        // Draw center pattern
+        paint.setColor(Color.rgb(fgR, fgG, fgB));
+        int centerX = blockSize;
+        int centerY = blockSize;
+        
+        switch (k) {
+            case 1: // circle
+                canvas.drawCircle(center, center, quarter3 / 2.0f, paint);
+                break;
+                
+            case 2: // quarter square
+                canvas.drawRect(centerX + quarter, centerY + quarter, 
+                              centerX + quarter3, centerY + quarter3, paint);
+                break;
+                
+            case 3: // full square
+                canvas.drawRect(centerX, centerY, centerX + blockSize, centerY + blockSize, paint);
+                break;
+                
+            case 4: // quarter diamond
+                Path path = new Path();
+                path.moveTo(centerX + half, centerY + quarter);
+                path.lineTo(centerX + quarter3, centerY + half);
+                path.lineTo(centerX + half, centerY + quarter3);
+                path.lineTo(centerX + quarter, centerY + half);
+                path.close();
+                canvas.drawPath(path, paint);
+                break;
+                
+            case 5: // diamond
+                Path diamondPath = new Path();
+                diamondPath.moveTo(centerX + half, centerY);
+                diamondPath.lineTo(centerX, centerY + half);
+                diamondPath.lineTo(centerX + half, centerY + blockSize);
+                diamondPath.lineTo(centerX + blockSize, centerY + half);
+                diamondPath.close();
+                canvas.drawPath(diamondPath, paint);
+                break;
+                
+            default:
+                // empty space
+                break;
         }
         
         return bitmap;
     }
 
     /**
-     * Draws a specific pattern at the given position with rotation
+     * Draws a specific pattern exactly matching the PHP switch statement
      */
-    private void drawPattern(Canvas canvas, Paint paint, int patternType, int originX, int originY, 
-                           int blockSize, int rotation) {
+    private void drawPatternOnCanvas(Canvas canvas, Paint paint, int patternType, int originX, int originY, int blockSize) {
         
         float quarter = blockSize / 4.0f;
         float quarter3 = quarter * 3;
         float half = blockSize / 2.0f;
-        float third = blockSize / 3.0f;
         
         Path path = new Path();
         
         switch (patternType) {
-            case 1: // Mountains
+            case 1: // #1 mountains
                 // First mountain
                 path.moveTo(originX, originY);
                 path.lineTo(originX + quarter, originY + blockSize);
@@ -183,7 +280,7 @@ public class VisiglyphsIdenticon extends Identicon {
                 canvas.drawPath(path, paint);
                 break;
                 
-            case 2: // Half triangle
+            case 2: // #2 half triangle
                 path.moveTo(originX, originY);
                 path.lineTo(originX + blockSize, originY);
                 path.lineTo(originX, originY + blockSize);
@@ -191,7 +288,7 @@ public class VisiglyphsIdenticon extends Identicon {
                 canvas.drawPath(path, paint);
                 break;
                 
-            case 3: // Center triangle
+            case 3: // #3 centre triangle
                 path.moveTo(originX, originY);
                 path.lineTo(originX + half, originY + blockSize);
                 path.lineTo(originX + blockSize, originY);
@@ -199,16 +296,11 @@ public class VisiglyphsIdenticon extends Identicon {
                 canvas.drawPath(path, paint);
                 break;
                 
-            case 4: // Half block
-                path.moveTo(originX, originY);
-                path.lineTo(originX, originY + blockSize);
-                path.lineTo(originX + half, originY + blockSize);
-                path.lineTo(originX + half, originY);
-                path.close();
-                canvas.drawPath(path, paint);
+            case 4: // #4 half block
+                canvas.drawRect(originX, originY, originX + half, originY + blockSize, paint);
                 break;
                 
-            case 5: // Half diamond
+            case 5: // #5 half diamond
                 path.moveTo(originX + quarter, originY);
                 path.lineTo(originX, originY + half);
                 path.lineTo(originX + quarter, originY + blockSize);
@@ -217,7 +309,7 @@ public class VisiglyphsIdenticon extends Identicon {
                 canvas.drawPath(path, paint);
                 break;
                 
-            case 6: // Spike
+            case 6: // #6 spike
                 path.moveTo(originX, originY);
                 path.lineTo(originX + blockSize, originY + half);
                 path.lineTo(originX + blockSize, originY + blockSize);
@@ -226,7 +318,7 @@ public class VisiglyphsIdenticon extends Identicon {
                 canvas.drawPath(path, paint);
                 break;
                 
-            case 7: // Quarter triangle
+            case 7: // #7 quarter triangle
                 path.moveTo(originX, originY);
                 path.lineTo(originX + half, originY + blockSize);
                 path.lineTo(originX, originY + blockSize);
@@ -234,7 +326,7 @@ public class VisiglyphsIdenticon extends Identicon {
                 canvas.drawPath(path, paint);
                 break;
                 
-            case 8: // Diagonal triangle
+            case 8: // #8 diag triangle
                 path.moveTo(originX, originY);
                 path.lineTo(originX + blockSize, originY + half);
                 path.lineTo(originX + half, originY + blockSize);
@@ -242,7 +334,7 @@ public class VisiglyphsIdenticon extends Identicon {
                 canvas.drawPath(path, paint);
                 break;
                 
-            case 9: // Center mini triangle
+            case 9: // #9 centre mini triangle
                 path.moveTo(originX + quarter, originY + quarter);
                 path.lineTo(originX + quarter3, originY + quarter);
                 path.lineTo(originX + quarter, originY + quarter3);
@@ -250,7 +342,7 @@ public class VisiglyphsIdenticon extends Identicon {
                 canvas.drawPath(path, paint);
                 break;
                 
-            case 10: // Diagonal mountains
+            case 10: // #10 diag mountains
                 // First part
                 path.moveTo(originX, originY);
                 path.lineTo(originX + half, originY);
@@ -267,16 +359,11 @@ public class VisiglyphsIdenticon extends Identicon {
                 canvas.drawPath(path, paint);
                 break;
                 
-            case 11: // Quarter block
-                path.moveTo(originX, originY);
-                path.lineTo(originX, originY + half);
-                path.lineTo(originX + half, originY + half);
-                path.lineTo(originX + half, originY);
-                path.close();
-                canvas.drawPath(path, paint);
+            case 11: // #11 quarter block
+                canvas.drawRect(originX, originY, originX + half, originY + half, paint);
                 break;
                 
-            case 12: // Point out triangle
+            case 12: // #12 point out triangle
                 path.moveTo(originX, originY + half);
                 path.lineTo(originX + half, originY + blockSize);
                 path.lineTo(originX + blockSize, originY + half);
@@ -284,7 +371,7 @@ public class VisiglyphsIdenticon extends Identicon {
                 canvas.drawPath(path, paint);
                 break;
                 
-            case 13: // Point in triangle
+            case 13: // #13 point in triangle
                 path.moveTo(originX, originY);
                 path.lineTo(originX + half, originY + half);
                 path.lineTo(originX + blockSize, originY);
@@ -292,7 +379,7 @@ public class VisiglyphsIdenticon extends Identicon {
                 canvas.drawPath(path, paint);
                 break;
                 
-            case 14: // Diagonal point in
+            case 14: // #14 diag point in
                 path.moveTo(originX + half, originY + half);
                 path.lineTo(originX, originY + half);
                 path.lineTo(originX + half, originY + blockSize);
@@ -300,7 +387,7 @@ public class VisiglyphsIdenticon extends Identicon {
                 canvas.drawPath(path, paint);
                 break;
                 
-            case 15: // Diagonal point out
+            case 15: // #15 diag point out
                 path.moveTo(originX, originY);
                 path.lineTo(originX + half, originY);
                 path.lineTo(originX, originY + half);
@@ -308,21 +395,14 @@ public class VisiglyphsIdenticon extends Identicon {
                 canvas.drawPath(path, paint);
                 break;
                 
-            case 16: // Diagonal side point out
+            case 0: // #16 diag side point out (case 16 becomes 0 after modulo)
             default:
                 path.moveTo(originX, originY);
-                path.lineTo(originX + blockSize, originY);
+                path.lineTo(originX + half, originY);
                 path.lineTo(originX + half, originY + half);
                 path.close();
                 canvas.drawPath(path, paint);
                 break;
-        }
-        
-        // Apply rotation if needed
-        if (rotation > 0) {
-            canvas.save();
-            canvas.rotate(rotation * 90, originX + half, originY + half);
-            canvas.restore();
         }
     }
 }
