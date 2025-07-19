@@ -69,6 +69,8 @@
     <string name="identicons_style_gmail">Gmail</string>
     <string name="identicons_style_unicornify">Unicornify</string>
     <string name="identicons_style_visiglyphs">Visiglyphs</string>
+    <string name="identicons_styles_multi_title">Styles</string>
+    <string name="identicons_styles_multi_summary">Select one or more identicon styles (random selection)</string>
     <!-- Used in the Holo ColorPicker dialog -->
     <string name="saturation">Saturation</string>
     <string name="value">Value</string>

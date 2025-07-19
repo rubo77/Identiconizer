@@ -47,4 +47,8 @@
         <item>@drawable/ic_identicons_style_visiglyphs</item>
     </array>
 
+    <string-array name="identicons_style_default_multi" translatable="false">
+        <item>0</item>
+    </string-array>
+
 </resources>

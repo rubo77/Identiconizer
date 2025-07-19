@@ -29,6 +29,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceScreen;
@@ -62,7 +63,7 @@ public class IdenticonsSettings extends AppCompatPreferenceActivity implements O
     private static final int PERMISSIONS_REQUEST_CODE = 123;
     private static final String ACTION_SETTINGS_ABOUT = "com.germainz.identiconizer.SETTINGS_ABOUT";
     private SwitchPreference mEnabledPref;
-    private ImageListPreference mStylePref;
+    private MultiSelectListPreference mStylesPref;
     private SwitchPreference mSerifPref;
     private Preference mLengthPref;
     private Preference mBgColorPref;
@@ -104,11 +105,11 @@ public class IdenticonsSettings extends AppCompatPreferenceActivity implements O
         mEnabledPref.setOnPreferenceChangeListener(this);
 
         PreferenceScreen prefSet = getPreferenceScreen();
-        mStylePref = (ImageListPreference) prefSet.findPreference(Config.PREF_STYLE);
-        mStylePref.setOnPreferenceChangeListener(this);
-        int style = mConfig.getIdenticonStyle();
-        mStylePref.setValue(String.valueOf(style));
-        updateStyleSummary(style);
+        mStylesPref = (MultiSelectListPreference) prefSet.findPreference(Config.PREF_STYLES_MULTI);
+        mStylesPref.setOnPreferenceChangeListener(this);
+        java.util.Set<String> selectedStyles = mConfig.getSelectedIdenticonStyles();
+        mStylesPref.setValues(selectedStyles);
+        updateStylesSummary(selectedStyles);
 
         Preference startServicePref = findPreference(Config.PREF_CREATE);
         startServicePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -176,8 +177,10 @@ public class IdenticonsSettings extends AppCompatPreferenceActivity implements O
 
         mSerifPref = (SwitchPreference) findPreference(Config.PREF_SERIF);
         mSerifPref.setChecked(mConfig.isIdenticonSerif());
-        if (mConfig.getIdenticonStyle() != IdenticonFactory.IDENTICON_STYLE_GMAIL)
-            mSerifPref.setEnabled(false);
+        
+        // Enable serif preference if Gmail style is selected
+        boolean gmailSelected = selectedStyles.contains(String.valueOf(IdenticonFactory.IDENTICON_STYLE_GMAIL));
+        mSerifPref.setEnabled(gmailSelected);
         mSerifPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean serif = !mConfig.isIdenticonSerif();
@@ -216,12 +219,13 @@ public class IdenticonsSettings extends AppCompatPreferenceActivity implements O
                 return true;
             }
         });
-        if (mConfig.getIdenticonStyle() != IdenticonFactory.IDENTICON_STYLE_GMAIL)
-            mLengthPref.setEnabled(false);
+        // Enable length preference if Gmail style is selected
+        mLengthPref.setEnabled(gmailSelected);
 
         mBgColorPref = findPreference(Config.PREF_BG_COLOR);
-        if (mConfig.getIdenticonStyle() == IdenticonFactory.IDENTICON_STYLE_GMAIL)
-            mBgColorPref.setEnabled(false);
+        // Enable background color preference unless only Gmail style is selected
+        boolean onlyGmailSelected = selectedStyles.size() == 1 && gmailSelected;
+        mBgColorPref.setEnabled(!onlyGmailSelected);
         mBgColorPref.setSummary(colorIntToRGB(mConfig.getIdenticonBgColor()));
         mBgColorPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -344,20 +348,54 @@ public class IdenticonsSettings extends AppCompatPreferenceActivity implements O
             else
                 stopService(new Intent(this, ContactsObserverService.class));
             return true;
-        } else if (preference == mStylePref) {
-            int style = Integer.valueOf((String) newValue);
-            updateStyleSummary(style);
-            mBgColorPref.setEnabled(style != IdenticonFactory.IDENTICON_STYLE_GMAIL);
-            mSerifPref.setEnabled(style == IdenticonFactory.IDENTICON_STYLE_GMAIL);
-            mLengthPref.setEnabled(style == IdenticonFactory.IDENTICON_STYLE_GMAIL);
+        } else if (preference == mStylesPref) {
+            @SuppressWarnings("unchecked")
+            java.util.Set<String> selectedStyles = (java.util.Set<String>) newValue;
+            updateStylesSummary(selectedStyles);
+            mConfig.setSelectedIdenticonStyles(selectedStyles);
+            
+            // Enable/disable preferences based on whether Gmail style is selected
+            boolean gmailSelected = selectedStyles.contains(String.valueOf(IdenticonFactory.IDENTICON_STYLE_GMAIL));
+            boolean onlyGmailSelected = selectedStyles.size() == 1 && gmailSelected;
+            mBgColorPref.setEnabled(!onlyGmailSelected);
+            mSerifPref.setEnabled(gmailSelected);
+            mLengthPref.setEnabled(gmailSelected);
             return true;
         }
         return false;
     }
 
-    private void updateStyleSummary(int value) {
-        mStylePref.setSummary(mStylePref.getEntries()[mStylePref.findIndexOfValue("" + value)]);
-        mConfig.setIdenticonStyle(value);
+    private void updateStylesSummary(java.util.Set<String> selectedStyles) {
+        if (selectedStyles.isEmpty()) {
+            mStylesPref.setSummary("No styles selected");
+            return;
+        }
+        
+        StringBuilder summary = new StringBuilder();
+        String[] entries = getResources().getStringArray(R.array.identicons_style_entries);
+        String[] values = getResources().getStringArray(R.array.identicons_style_values);
+        
+        boolean first = true;
+        for (String styleValue : selectedStyles) {
+            if (!first) {
+                summary.append(", ");
+            }
+            
+            // Find the corresponding entry name
+            for (int i = 0; i < values.length; i++) {
+                if (values[i].equals(styleValue)) {
+                    summary.append(entries[i]);
+                    break;
+                }
+            }
+            first = false;
+        }
+        
+        if (selectedStyles.size() > 1) {
+            summary.append(" (random selection)");
+        }
+        
+        mStylesPref.setSummary(summary.toString());
     }
 
     public int getMaxContactPhotoSize() {

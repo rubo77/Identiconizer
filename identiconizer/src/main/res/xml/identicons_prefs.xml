@@ -28,13 +28,13 @@
 
     <PreferenceCategory android:title="@string/section_appearance">
 
-        <com.germainz.identiconizer.ImageListPreference
-            android:key="identicons_style"
-            android:title="@string/identicons_style_title"
+        <MultiSelectListPreference
+            android:key="identicons_styles_multi"
+            android:title="@string/identicons_styles_multi_title"
+            android:summary="@string/identicons_styles_multi_summary"
             android:entries="@array/identicons_style_entries"
             android:entryValues="@array/identicons_style_values"
-            app:entryImages="@array/identicons_style_icons"
-            android:defaultValue="0"/>
+            android:defaultValue="@array/identicons_style_default_multi"/>
 
         <Preference
             android:key="identicons_bg_color"

@@ -7,7 +7,7 @@ default picture.
 
 Features
 ========
-* Use identicons for newly created contacts. A service is normally used to detect new contacts. If you use the Xposed Framework, you can enable Identiconizer! as a module instead to integrate the application into the system.
+* Use identicons for newly created contacts. A background service is used to detect new contacts and automatically assign them an identicon.
 * Choose from seven different identicon styles: Retro, Contemporary, Spirograph, Dot Matrix, Gmail, Unicornify, and Visiglyphs.
 * Specify the identicon sizes, from 96x96 up to 720x720 (256x256 max on ICS.)
 * Choose a custom background color for the created identicons.
@@ -18,23 +18,58 @@ Features
 * Contacts list to add/remove Identicon to/from wanted contacts only.
 * Short delay before creating identicons for new contacts, to avoid overwriting DAVdroid photos.
 
-What's New in Version 1.4.1
-========================
-* Support for Android API level 35
-* Fixed missing example icons for identicon styles on Android 16
-* Removed XposedBridge reference from About section
-* Added new "unicornify" style using unicornify.pictures avatar service (requires internet connection)
-* Added proper permissions for foreground services on Android 12+
+How Identicons Work
+==================
 
-What's New in Version 1.4
-========================
-* The app now targets / works on the latest Android version
-* The app's design is now a bit more modern
-* Add colors to match Google Messenger theme (contributed by @TiiXel)
-* Add serif font support in options (contributed by @TiiXel)
-* Add option for more than one letter in Gmail Style (contributed by @TiiXel)
-* Add short delay before creating identicons for new contacts, to avoid overwriting DAVdroid photos
-* App version is now shown in the About screen
+## Storage and Detection
+
+**Where are identicons stored?**
+Identicons are stored directly in Android's ContactsContract database as contact photos, just like regular profile pictures. They are saved in the `ContactsContract.Data` table with the MIME type `vnd.android.cursor.item/photo` in the `DATA15` field as binary data (byte arrays).
+
+**How does the app distinguish identicons from user photos?**
+The app uses a clever tagging system to identify its own generated identicons:
+- Each generated identicon contains a special marker string `"identicon_marker"` embedded in the image metadata
+- For PNG images: The marker is embedded as a custom chunk at the end of the file
+- For JPEG images: The marker is embedded in the EXIF data
+- When processing contacts, the app checks for this marker using `IdenticonUtils.isIdenticon()` to determine if an existing photo is an identicon or a user-uploaded image
+
+**Which contacts get identicons?**
+The app only replaces photos for contacts that:
+- Have no existing photo, OR
+- Have an existing identicon (when updating/changing styles)
+- Are in visible contact groups (unless "ignore visibility" is enabled)
+- Have a non-empty display name
+
+User-uploaded photos are never replaced - the app respects custom profile pictures.
+
+## Contact Sharing and Export
+
+**Are identicons exported when sharing contacts?**
+Yes! Since identicons are stored as standard contact photos in Android's database, they are included when:
+- Sharing contacts via Android's built-in sharing mechanisms
+- Exporting contacts to VCF (vCard) files
+- Syncing contacts with cloud services (Google Contacts, Exchange, etc.)
+- Backing up contacts
+
+The identicons will appear as regular profile pictures to other devices and applications, since they are stored using Android's standard photo storage format.
+
+**What happens on the receiving device?**
+- If the receiving device has Identiconizer installed: The app will recognize the identicon marker and can manage/replace these images
+- If the receiving device doesn't have Identiconizer: The identicons will appear as normal profile pictures and remain unchanged
+
+## Technical Implementation
+
+**Contact Detection Process:**
+1. The app monitors the ContactsContract database for new contacts
+2. When a new contact is detected, it checks if the contact has an existing photo
+3. If no photo exists, or if the existing photo is an identicon, a new identicon is generated
+4. The identicon is created based on the contact's display name using MD5 hashing
+5. The generated image is tagged with the identicon marker and stored in the database
+
+**Offline Behavior:**
+- Most identicon styles work offline (Retro, Contemporary, Spirograph, Dot Matrix, Gmail, Visiglyphs)
+- The Unicornify style requires internet connection but caches downloaded avatars for offline use
+- When offline, Unicornify will use cached versions or skip contacts if no cache exists
 
 Links
 =====

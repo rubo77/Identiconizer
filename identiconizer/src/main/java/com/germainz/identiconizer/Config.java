@@ -29,6 +29,7 @@ public class Config {
     public static final String PREFS = PACKAGE_NAME + "_preferences";
     public static final String PREF_ENABLED = "identicons_enabled";
     public static final String PREF_STYLE = "identicons_style";
+    public static final String PREF_STYLES_MULTI = "identicons_styles_multi";
     public static final String PREF_SIZE = "identicons_size";
     public static final String PREF_BG_COLOR = "identicons_bg_color";
     public static final String PREF_SERIF = "identicons_serif";
@@ -116,6 +117,28 @@ public class Config {
 
     public void setMaxContactID(int id) {
         mPreferences.edit().putInt(PREF_MAX_CONTACT_ID, id).commit();
+    }
+
+    public java.util.Set<String> getSelectedIdenticonStyles() {
+        java.util.Set<String> defaultStyles = new java.util.HashSet<>();
+        defaultStyles.add("0"); // Default to retro style
+        return mPreferences.getStringSet(PREF_STYLES_MULTI, defaultStyles);
+    }
+
+    public void setSelectedIdenticonStyles(java.util.Set<String> styles) {
+        mPreferences.edit().putStringSet(PREF_STYLES_MULTI, styles).commit();
+    }
+
+    public int getRandomIdenticonStyle() {
+        java.util.Set<String> selectedStyles = getSelectedIdenticonStyles();
+        if (selectedStyles.isEmpty()) {
+            return 0; // Default to retro if no styles selected
+        }
+        
+        // Convert to array for random selection
+        String[] stylesArray = selectedStyles.toArray(new String[0]);
+        int randomIndex = (int) (Math.random() * stylesArray.length);
+        return Integer.parseInt(stylesArray[randomIndex]);
     }
 
     private String getString(String key, String defaultValue) {

@@ -93,7 +93,7 @@ public class IdenticonFactory {
      */
     public static Identicon makeIdenticon(Context context) {
         Config config = Config.getInstance(context);
-        return makeIdenticon(context, config.getIdenticonStyle(), config.getIdenticonSize(), config.getIdenticonBgColor(), config.isIdenticonSerif(), config.getIdenticonLength());
+        return makeIdenticon(context, config.getRandomIdenticonStyle(), config.getIdenticonSize(), config.getIdenticonBgColor(), config.isIdenticonSerif(), config.getIdenticonLength());
     }
 }
 
