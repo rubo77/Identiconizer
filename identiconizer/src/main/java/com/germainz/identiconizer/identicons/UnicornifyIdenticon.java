@@ -212,7 +212,7 @@ public class UnicornifyIdenticon extends Identicon {
      * @param size The size of the bitmap
      * @return The cached bitmap or null if not found
      */
-    private Bitmap loadFromCache(String hexHash, int size) {
+    public Bitmap loadFromCache(String hexHash, int size) {
         File cacheDir = new File(mContext.getCacheDir(), CACHE_DIR);
         if (!cacheDir.exists()) {
             return null;
@@ -232,6 +232,37 @@ public class UnicornifyIdenticon extends Identicon {
         }
         
         return null;
+    }
+    
+    /**
+     * Gets a random cached Unicornify image for preview purposes
+     * @param size The desired size
+     * @return A random cached bitmap or null if no cache exists
+     */
+    public Bitmap getRandomCachedImage(int size) {
+        File cacheDir = new File(mContext.getCacheDir(), CACHE_DIR);
+        if (!cacheDir.exists()) {
+            return null;
+        }
+        
+        // Get all cached files for this size
+        File[] cacheFiles = cacheDir.listFiles((dir, name) -> 
+            name.endsWith("_" + size + ".png"));
+        
+        if (cacheFiles == null || cacheFiles.length == 0) {
+            return null;
+        }
+        
+        // Pick a random cached file
+        File randomFile = cacheFiles[(int) (Math.random() * cacheFiles.length)];
+        
+        try (FileInputStream in = new FileInputStream(randomFile)) {
+            Log.d(TAG, "Using random cached unicorn: " + randomFile.getName());
+            return BitmapFactory.decodeStream(in);
+        } catch (IOException e) {
+            Log.e(TAG, "Error loading random cached unicorn: " + e.getMessage());
+            return null;
+        }
     }
     
     /**

@@ -6,3 +6,4 @@
 - [x] add a new style "unicornify":
 - [x] add a new style "visiglyphs":
 - [x] randomly select from enabled styles
+- [ ] visiglyphs identicons still have no visible radial gradient overlayer, it shoulc have one with two colors 

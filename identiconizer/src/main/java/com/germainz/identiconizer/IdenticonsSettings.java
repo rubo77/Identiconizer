@@ -30,6 +30,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.MultiSelectListPreference;
+import com.germainz.identiconizer.preferences.IdenticonStyleMultiSelectPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceScreen;
@@ -63,7 +64,7 @@ public class IdenticonsSettings extends AppCompatPreferenceActivity implements O
     private static final int PERMISSIONS_REQUEST_CODE = 123;
     private static final String ACTION_SETTINGS_ABOUT = "com.germainz.identiconizer.SETTINGS_ABOUT";
     private SwitchPreference mEnabledPref;
-    private MultiSelectListPreference mStylesPref;
+    private IdenticonStyleMultiSelectPreference mStylesPref;
     private SwitchPreference mSerifPref;
     private Preference mLengthPref;
     private Preference mBgColorPref;
@@ -105,7 +106,7 @@ public class IdenticonsSettings extends AppCompatPreferenceActivity implements O
         mEnabledPref.setOnPreferenceChangeListener(this);
 
         PreferenceScreen prefSet = getPreferenceScreen();
-        mStylesPref = (MultiSelectListPreference) prefSet.findPreference(Config.PREF_STYLES_MULTI);
+        mStylesPref = (IdenticonStyleMultiSelectPreference) prefSet.findPreference(Config.PREF_STYLES_MULTI);
         mStylesPref.setOnPreferenceChangeListener(this);
         java.util.Set<String> selectedStyles = mConfig.getSelectedIdenticonStyles();
         mStylesPref.setValues(selectedStyles);

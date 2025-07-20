@@ -28,7 +28,7 @@
 
     <PreferenceCategory android:title="@string/section_appearance">
 
-        <MultiSelectListPreference
+        <com.germainz.identiconizer.preferences.IdenticonStyleMultiSelectPreference
             android:key="identicons_styles_multi"
             android:title="@string/identicons_styles_multi_title"
             android:summary="@string/identicons_styles_multi_summary"
