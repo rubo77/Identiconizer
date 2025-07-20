@@ -95,5 +95,55 @@ public class IdenticonFactory {
         Config config = Config.getInstance(context);
         return makeIdenticon(context, config.getRandomIdenticonStyle(), config.getIdenticonSize(), config.getIdenticonBgColor(), config.isIdenticonSerif(), config.getIdenticonLength());
     }
+
+    /**
+     * Get the appropriate identicon class using consistent style selection for a contact
+     *
+     * @param context Application context
+     * @param contactName Contact name for consistent style selection
+     * @return Appropriate Identicon implementation
+     */
+    public static Identicon makeIdenticonForContact(Context context, String contactName) {
+        Config config = Config.getInstance(context);
+        int styleId = config.getConsistentIdenticonStyleForContact(contactName);
+        return makeIdenticon(context, styleId, config.getIdenticonSize(), config.getIdenticonBgColor(), config.isIdenticonSerif(), config.getIdenticonLength());
+    }
+
+    /**
+     * Creates an identicon with style metadata embedded
+     *
+     * @param context Application context
+     * @param contactName Contact name for consistent style selection
+     * @param key The key to generate identicon for
+     * @return Identicon byte array with style metadata
+     */
+    public static byte[] makeIdenticonWithStyleMetadata(Context context, String contactName, String key) {
+        Config config = Config.getInstance(context);
+        int styleId = config.getConsistentIdenticonStyleForContact(contactName);
+        String styleName = config.getStyleNameForId(styleId);
+        
+        Identicon identicon = makeIdenticon(context, styleId, config.getIdenticonSize(), 
+                config.getIdenticonBgColor(), config.isIdenticonSerif(), config.getIdenticonLength());
+        
+        // Generate the identicon bitmap
+        android.graphics.Bitmap bitmap = identicon.generateIdenticonBitmap(key);
+        if (bitmap == null) return null;
+        
+        // Convert to byte array and add style metadata
+        java.io.ByteArrayOutputStream stream = new java.io.ByteArrayOutputStream();
+        bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] bytes = stream.toByteArray();
+        try {
+            stream.close();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+        
+        if (bytes != null) {
+            return Identicon.makeTaggedIdenticonWithStyle(bytes, styleName);
+        }
+        
+        return bytes;
+    }
 }
 

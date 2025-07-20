@@ -141,6 +141,53 @@ public class Config {
         return Integer.parseInt(stylesArray[randomIndex]);
     }
 
+    /**
+     * Selects a consistent identicon style for a contact based on their name hash
+     * This ensures the same contact always gets the same style across recreations
+     *
+     * @param contactName The contact's name
+     * @return The style ID as integer, consistently selected for this contact
+     */
+    public int getConsistentIdenticonStyleForContact(String contactName) {
+        java.util.Set<String> selectedStyles = getSelectedIdenticonStyles();
+        if (selectedStyles.isEmpty()) {
+            return 0; // Default to retro if no styles selected
+        }
+        
+        if (selectedStyles.size() == 1) {
+            return Integer.parseInt(selectedStyles.iterator().next());
+        }
+        
+        // Convert set to sorted list for consistent ordering
+        java.util.List<String> stylesList = new java.util.ArrayList<>(selectedStyles);
+        java.util.Collections.sort(stylesList);
+        
+        // Use contact name hash to deterministically select style
+        int hash = contactName.toLowerCase().hashCode();
+        int index = Math.abs(hash) % stylesList.size();
+        
+        return Integer.parseInt(stylesList.get(index));
+    }
+
+    /**
+     * Gets the style name string for a given style ID
+     *
+     * @param styleId The style ID
+     * @return The style name string
+     */
+    public String getStyleNameForId(int styleId) {
+        switch (styleId) {
+            case 0: return "retro";
+            case 1: return "gmail";
+            case 2: return "github";
+            case 3: return "unicornify";
+            case 4: return "robohash";
+            case 5: return "wavatar";
+            case 6: return "visiglyphs";
+            default: return "retro";
+        }
+    }
+
     private String getString(String key, String defaultValue) {
         return mPreferences.getString(key, defaultValue);
     }

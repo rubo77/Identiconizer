@@ -34,27 +34,146 @@ public class IdenticonUtils {
         if (data == null || format == OTHER_FORMAT)
             return false;
 
+        if (format == JPG_FORMAT) {
+            // Handle JPG format with fixed position
+            int start = data.length - 18;
+            int end = data.length - 2;
+            String charSet = "US-ASCII";
+            
+            if (start < 0 || end <= start || end > data.length) {
+                return false;
+            }
+            
+            byte[] tag = Arrays.copyOfRange(data, start, end);
+            try {
+                String tagString = new String(tag, charSet);
+                return Identicon.IDENTICON_MARKER.equals(tagString);
+            } catch (UnsupportedEncodingException e) {
+                return false;
+            }
+        } else {
+            // Handle PNG format - try multiple approaches to be robust
+            
+            // Try different possible marker lengths to handle both old and new identicons
+            String[] possibleMarkers = {
+                Identicon.IDENTICON_MARKER, // Old format: "identicon_marker"
+            };
+            
+            // Try the original fixed-length approach first
+            for (String expectedMarker : possibleMarkers) {
+                int start = data.length - (expectedMarker.length() + 1);
+                int end = data.length - 1;
+                
+                if (start >= 0 && end > start && end <= data.length) {
+                    byte[] tag = Arrays.copyOfRange(data, start, end);
+                    try {
+                        String tagString = new String(tag, "ISO-8859-1");
+                        if (expectedMarker.equals(tagString)) {
+                            return true;
+                        }
+                    } catch (UnsupportedEncodingException e) {
+                        // Continue to next approach
+                    }
+                }
+            }
+            
+            // Try a broader search approach - look for the marker anywhere in the last part of the file
+            int searchStart = Math.max(0, data.length - 200); // Search last 200 bytes
+            try {
+                String endOfFile = new String(Arrays.copyOfRange(data, searchStart, data.length), "ISO-8859-1");
+                if (endOfFile.contains(Identicon.IDENTICON_MARKER)) {
+                    return true;
+                }
+            } catch (UnsupportedEncodingException e) {
+                // Ignore and return false
+            }
+            
+            return false;
+        }
+    }
+
+    /**
+     * Extracts the style from an existing identicon's metadata
+     *
+     * @param imageData The identicon image data
+     * @return The style name, or null if not found or not an identicon
+     */
+    public static String getStyleFromIdenticon(byte[] imageData) {
+        if (!isIdenticon(imageData)) {
+            return null;
+        }
+        
+        String markerString = extractMarkerString(imageData);
+        if (markerString != null && markerString.contains(Identicon.STYLE_MARKER_PREFIX)) {
+            String[] parts = markerString.split("\\|");
+            for (String part : parts) {
+                if (part.startsWith(Identicon.STYLE_MARKER_PREFIX)) {
+                    return part.substring(Identicon.STYLE_MARKER_PREFIX.length());
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Extracts the full marker string from identicon metadata
+     *
+     * @param data The identicon image data
+     * @return The marker string, or null if not found
+     */
+    private static String extractMarkerString(byte[] data) {
+        int format = getDataFormat(data);
+        if (data == null || format == OTHER_FORMAT)
+            return null;
+
         int start, end;
         String charSet;
         if (format == JPG_FORMAT) {
             start = data.length - 18;
-            end = data.length -2;
+            end = data.length - 2;
             charSet = "US-ASCII";
         } else {
-            start = data.length - (Identicon.IDENTICON_MARKER.length() + 1);
+            // For PNG, we need to find the actual marker length dynamically
+            // since it can now contain style information
+            start = findMarkerStart(data);
+            if (start == -1) return null;
             end = data.length - 1;
             charSet = "ISO-8859-1";
         }
+        
+        if (start < 0 || end <= start) return null;
+        
         byte[] tag = Arrays.copyOfRange(data, start, end);
-
-        String tagString;
+        
         try {
-            tagString = new String(tag, charSet);
+            return new String(tag, charSet);
         } catch (UnsupportedEncodingException e) {
-            return false;
+            return null;
         }
+    }
 
-        return Identicon.IDENTICON_MARKER.equals(tagString);
+    /**
+     * Finds the start position of the marker in PNG data
+     */
+    private static int findMarkerStart(byte[] data) {
+        // Search backwards for the identicon marker
+        String marker = Identicon.IDENTICON_MARKER;
+        byte[] markerBytes = marker.getBytes();
+        
+        for (int i = data.length - markerBytes.length - 1; i >= 0; i--) {
+            boolean found = true;
+            for (int j = 0; j < markerBytes.length; j++) {
+                if (data[i + j] != markerBytes[j]) {
+                    found = false;
+                    break;
+                }
+            }
+            if (found) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private static int getDataFormat(byte[] data) {

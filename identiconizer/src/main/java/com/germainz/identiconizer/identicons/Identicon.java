@@ -28,6 +28,7 @@ import java.security.MessageDigest;
 public abstract class Identicon {
 
     public static final String IDENTICON_MARKER = "identicon_marker";
+    public static final String STYLE_MARKER_PREFIX = "style:";
 
     public static final String DEFAULT_IDENTICON_SALT =
             "zG~v(+&>fLX|!#9D*BTj*#K>amB&TUB}T/jBOQih|Sg8}@N-^Rk|?VEXI,9EQPH]";
@@ -96,6 +97,25 @@ public abstract class Identicon {
      */
     protected static byte[] makeTaggedIdenticon(byte[] original) {
         byte[] taggedBlock = makeTextBlock(IDENTICON_MARKER);
+        byte[] taggedImage = new byte[original.length + taggedBlock.length];
+        ByteBuffer buffer = ByteBuffer.wrap(taggedImage);
+        buffer.put(original);
+        buffer.put(taggedBlock);
+        return taggedImage;
+    }
+
+    /**
+     * Creates identicon metadata that includes the selected style
+     *
+     * @param original The png image to add the comment to
+     * @param styleName The identicon style name to store in metadata
+     * @return The same image provided with the added chunk containing style info
+     */
+    public static byte[] makeTaggedIdenticonWithStyle(byte[] original, String styleName) {
+        // Create combined marker with style info
+        String combinedMarker = IDENTICON_MARKER + "|" + STYLE_MARKER_PREFIX + styleName;
+        byte[] taggedBlock = makeTextBlock(combinedMarker);
+        
         byte[] taggedImage = new byte[original.length + taggedBlock.length];
         ByteBuffer buffer = ByteBuffer.wrap(taggedImage);
         buffer.put(original);

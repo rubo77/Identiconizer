@@ -206,8 +206,7 @@ public class IdenticonRemovalService extends IntentService {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
         NotificationManager nm =
                 (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        @SuppressWarnings("deprecation")
-        Notification notice = new Notification.Builder(this)
+        Notification notice = new NotificationCompat.Builder(this, TAG)
                 .setAutoCancel(false)
                 .setOngoing(true)
                 .setContentTitle(title)
@@ -215,7 +214,7 @@ public class IdenticonRemovalService extends IntentService {
                 .setSmallIcon(R.drawable.ic_settings_identicons)
                 .setWhen(System.currentTimeMillis())
                 .setContentIntent(contentIntent)
-                .getNotification();
+                .build();
         nm.notify(SERVICE_NOTIFICATION_ID, notice);
     }
 }

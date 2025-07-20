@@ -144,14 +144,113 @@ public class IdenticonCreationService extends IntentService {
         return blob;
     }
 
+    /**
+     * Gets existing contact photo for style preservation check
+     *
+     * @param contactId The contact's raw contact ID
+     * @return The existing photo bytes, or null if none exists
+     */
+    private byte[] getExistingContactPhoto(int contactId) {
+        String[] projection = new String[]{ContactsContract.Data.DATA15};
+        String where = ContactsContract.Data.RAW_CONTACT_ID + " == "
+                + String.valueOf(contactId) + " AND " + ContactsContract.Data.MIMETYPE + "=='"
+                + ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE + "'";
+        Cursor cursor = getContentResolver().query(
+                ContactsContract.Data.CONTENT_URI,
+                projection,
+                where,
+                null,
+                null);
+        byte[] blob = null;
+        if (cursor.moveToFirst()) {
+            blob = cursor.getBlob(0);
+        }
+        cursor.close();
+        return blob;
+    }
+
+    /**
+     * Generates identicon with a specific style, preserving the style metadata
+     *
+     * @param name Contact name
+     * @param styleName Style name to use
+     * @return Identicon byte array with style metadata
+     */
+    private byte[] generateIdenticonWithSpecificStyle(String name, String styleName) {
+        Config config = Config.getInstance(this);
+        int styleId = getStyleIdFromName(styleName);
+        
+        Identicon identicon = IdenticonFactory.makeIdenticon(this, styleId, 
+                config.getIdenticonSize(), config.getIdenticonBgColor(), 
+                config.isIdenticonSerif(), config.getIdenticonLength());
+        
+        // Generate the identicon bitmap
+        android.graphics.Bitmap bitmap = identicon.generateIdenticonBitmap(name);
+        if (bitmap == null) return null;
+        
+        // Convert to byte array and add style metadata
+        java.io.ByteArrayOutputStream stream = new java.io.ByteArrayOutputStream();
+        bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] bytes = stream.toByteArray();
+        try {
+            stream.close();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+        
+        if (bytes != null) {
+            return Identicon.makeTaggedIdenticonWithStyle(bytes, styleName);
+        }
+        
+        return bytes;
+    }
+
+    /**
+     * Converts style name to style ID
+     *
+     * @param styleName The style name
+     * @return The style ID
+     */
+    private int getStyleIdFromName(String styleName) {
+        if (styleName == null) return 0;
+        
+        switch (styleName.toLowerCase()) {
+            case "retro": return 0;
+            case "gmail": return 1;
+            case "github": return 2;
+            case "unicornify": return 3;
+            case "robohash": return 4;
+            case "wavatar": return 5;
+            case "visiglyphs": return 6;
+            default: return 0;
+        }
+    }
+
     private void generateIdenticon(int contactId, String name) {
         if (!TextUtils.isEmpty(name)) {
             updateNotification(getString(R.string.identicons_creation_service_running_title),
                     String.format(getString(R.string.identicons_creation_service_contact_summary),
                             name)
             );
-            final Identicon identicon = IdenticonFactory.makeIdenticon(this);
-            final byte[] identiconImage = identicon.generateIdenticonByteArray(name);
+            
+            // First, check if contact already has an identicon with style metadata
+            byte[] existingPhoto = getExistingContactPhoto(contactId);
+            String preservedStyle = null;
+            
+            if (existingPhoto != null && IdenticonUtils.isIdenticon(existingPhoto)) {
+                preservedStyle = IdenticonUtils.getStyleFromIdenticon(existingPhoto);
+                Log.d(TAG, "Found existing identicon for " + name + " with style: " + preservedStyle);
+            }
+            
+            byte[] identiconImage;
+            
+            if (preservedStyle != null) {
+                // Use preserved style to recreate identicon
+                identiconImage = generateIdenticonWithSpecificStyle(name, preservedStyle);
+            } else {
+                // Generate new identicon with style metadata using consistent selection
+                identiconImage = IdenticonFactory.makeIdenticonWithStyleMetadata(this, name, name);
+            }
             
             // Check if the identicon generation was successful
             // This is important for UnicornifyIdenticon which might return null when offline and no cached version exists
@@ -237,8 +336,7 @@ public class IdenticonCreationService extends IntentService {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
         NotificationManager nm =
                 (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        @SuppressWarnings("deprecation")
-        Notification notice = new Notification.Builder(this)
+        Notification notice = new NotificationCompat.Builder(this, TAG)
                 .setAutoCancel(false)
                 .setOngoing(true)
                 .setContentTitle(title)
@@ -246,7 +344,7 @@ public class IdenticonCreationService extends IntentService {
                 .setSmallIcon(R.drawable.ic_settings_identicons)
                 .setWhen(System.currentTimeMillis())
                 .setContentIntent(contentIntent)
-                .getNotification();
+                .build();
         nm.notify(SERVICE_NOTIFICATION_ID, notice);
     }
 
