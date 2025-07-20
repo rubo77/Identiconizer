@@ -47,7 +47,7 @@ function glyph($blocksize,$i,$j,$k,$rot1,$rot2,$fgr,$fgg,$fgb,$fgr2,$fgg2,$fgb2,
     $originx=0;
     $originy=0;
 
-    // Draw first pattern using extracted function
+    // Draw first pattern
     drawPatternOnCanvas($im, $i, $originx, $originy, $blocksize, $red, $quarter, $quarter3, $half);
 
     // rotate block
@@ -61,7 +61,7 @@ function glyph($blocksize,$i,$j,$k,$rot1,$rot2,$fgr,$fgg,$fgb,$fgr2,$fgg2,$fgb2,
     $originy=0;
     $red = imagecolorallocate($im, $fgr2, $fgg2, $fgb2);
 
-    // Draw second pattern using extracted function
+    // Draw second pattern
     drawPatternOnCanvas($im, $j, $originx, $originy, $blocksize, $red, $quarter, $quarter3, $half);
 
     // rotate block

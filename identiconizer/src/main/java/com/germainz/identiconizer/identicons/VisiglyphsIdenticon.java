@@ -133,6 +133,14 @@ public class VisiglyphsIdenticon extends Identicon {
                                           int rot1, int rot2, int fgR, int fgG, int fgB,
                                           int fgR2, int fgG2, int fgB2, int bgR, int bgG, int bgB) {
         
+        // set a minimum blocksize below which we draw bigger and then resample downwards for a better look
+        int resize = 0;
+        int minblocksize = 24;
+        if (blockSize < minblocksize) {
+            resize = blockSize;
+            blockSize = minblocksize;
+        }
+        
         int imgSize = blockSize * 3;
         float quarter = blockSize / 4.0f;
         float quarter3 = quarter * 3;
@@ -157,7 +165,7 @@ public class VisiglyphsIdenticon extends Identicon {
         paint.setColor(Color.rgb(fgR, fgG, fgB));
         drawPatternOnCanvas(canvas, paint, i, 0, 0, blockSize);
         
-        // Copy block for rotation
+        // rotate block
         Canvas rotateTempCanvas = new Canvas(rotateTemp);
         rotateTempCanvas.drawColor(Color.rgb(bgR, bgG, bgB));
         rotateTempCanvas.drawBitmap(bitmap, new Rect(0, 0, blockSize, blockSize), new Rect(0, 0, blockSize, blockSize), null);
@@ -177,7 +185,7 @@ public class VisiglyphsIdenticon extends Identicon {
         paint.setColor(Color.rgb(fgR2, fgG2, fgB2));
         drawPatternOnCanvas(canvas, paint, j, blockSize, 0, blockSize);
         
-        // Copy second block for rotation
+        // rotate block
         rotateTempCanvas.drawColor(Color.rgb(bgR, bgG, bgB));
         rotateTempCanvas.drawBitmap(bitmap, new Rect(blockSize, 0, blockSize * 2, blockSize), new Rect(0, 0, blockSize, blockSize), null);
         
@@ -191,20 +199,20 @@ public class VisiglyphsIdenticon extends Identicon {
         // Redraw second block rotated
         canvas.drawBitmap(rotateTemp, blockSize, 0, null);
         
-        // Copy blocks to form radial pattern (matching PHP roundabout loop)
+        // copy blocks to form radial pattern
         Canvas tempBlockCanvas = new Canvas(tempBlock);
         for (int roundabout = 0; roundabout < 3; roundabout++) {
             // Copy current blocks
             tempBlockCanvas.drawColor(Color.rgb(bgR, bgG, bgB));
             tempBlockCanvas.drawBitmap(bitmap, new Rect(0, 0, blockSize * 2, blockSize), new Rect(0, 0, blockSize * 2, blockSize), null);
             
-            // Rotate entire image 90 degrees
+            // rotate
             Matrix matrix = new Matrix();
             matrix.postRotate(90, imgSize / 2.0f, imgSize / 2.0f);
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, imgSize, imgSize, matrix, true);
             canvas = new Canvas(bitmap);
             
-            // Paste back the copied blocks
+            // paste back
             canvas.drawBitmap(tempBlock, 0, 0, null);
         }
         
@@ -212,6 +220,7 @@ public class VisiglyphsIdenticon extends Identicon {
         paint.setColor(Color.rgb(fgR, fgG, fgB));
         int centerX = blockSize;
         int centerY = blockSize;
+        // draw centre
         
         switch (k) {
             case 1: // circle
@@ -254,6 +263,23 @@ public class VisiglyphsIdenticon extends Identicon {
         
         // Apply radial gradient overlay (matching PHP Visiglyphs finish)
         applyRadialGradientOverlay(canvas, imgSize, bgR, bgG, bgB);
+        
+        // if we need to resample down
+        if (resize > 0) {
+            blockSize = resize;
+            int imgsizeR = blockSize * 3;
+            Bitmap imresize = Bitmap.createBitmap(imgsizeR, imgsizeR, Bitmap.Config.ARGB_8888);
+            Canvas resizeCanvas = new Canvas(imresize);
+            resizeCanvas.drawColor(Color.rgb(bgR, bgG, bgB));
+            
+            // Scale down the bitmap
+            Matrix matrix = new Matrix();
+            float scale = (float) imgsizeR / imgSize;
+            matrix.postScale(scale, scale);
+            resizeCanvas.drawBitmap(bitmap, matrix, null);
+            
+            return imresize;
+        }
         
         return bitmap;
     }
