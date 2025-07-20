@@ -47,171 +47,8 @@ function glyph($blocksize,$i,$j,$k,$rot1,$rot2,$fgr,$fgg,$fgb,$fgr2,$fgg2,$fgb2,
     $originx=0;
     $originy=0;
 
-    switch($i){
-        case 1: // #1 mountains
-            $points = array(
-                $originx, $originy,
-                $originx+$quarter, $originy+$blocksize,
-                $originx+$half, $originy
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            $points = array(
-                $originx+$half, $originy,
-                $originx+$quarter3, $originy+$blocksize,
-                $originx+$blocksize, $originy
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 2: // #2 half triangle
-            $points = array(
-                $originx, $originy,
-                $originx+$blocksize, $originy,
-                $originx, $originy+$blocksize
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 3: // #3 centre triangle
-            $points = array(
-                $originx, $originy,
-                $originx+$half, $originy+$blocksize,
-                $originx+$blocksize, $originy
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 4: // #4 half block
-            imagefilledrectangle ( $im, $originx, $originy, $originx+$half, $originy+$blocksize, $red);
-            break;
-
-        case 5: // #5 half diamond
-            $points = array(
-                $originx+$quarter, $originy,
-                $originx, $originy+$half,
-                $originx+$quarter, $originy+$blocksize,
-                $originx+$half, $originy+$half
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 6: // #6 spike
-            $points = array(
-                $originx, $originy,
-                $originx+$blocksize, $originy+$half,
-                $originx+$blocksize, $originy+$blocksize,
-                $originx+$half, $originy+$blocksize
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 7: // #7 quarter triangle
-            $points = array(
-                $originx, $originy,
-                $originx+$half, $originy+$blocksize,
-                $originx, $originy+$blocksize
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 8: // #8 diag triangle
-            $points = array(
-                $originx, $originy,
-                $originx+$blocksize, $originy+$half,
-                $originx+$half, $originy+$blocksize
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 9: // #9 centre mini triangle
-            $points = array(
-                $originx+$quarter, $originy+$quarter,
-                $originx+$quarter3, $originy+$quarter,
-                $originx+$quarter, $originy+$quarter3
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 10: // #10 diag mountains
-            $points = array(
-                $originx, $originy,
-                $originx+$half, $originy,
-                $originx+$half, $originy+$half
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            $points = array(
-                $originx+$half, $originy+$half,
-                $originx+$blocksize, $originy+$half,
-                $originx+$blocksize, $originy+$blocksize
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 11: // #11 quarter block
-            imagefilledrectangle ( $im, $originx, $originy, $originx+$half, $originy+$half, $red);
-            break;
-
-        case 12: // #12 point out triangle
-            $points = array(
-                $originx, $originy+$half,
-                $originx+$half, $originy+$blocksize,
-                $originx+$blocksize, $originy+$half
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 13: // #13 point in triangle
-            $points = array(
-                $originx, $originy,
-                $originx+$half, $originy+$half,
-                $originx+$blocksize, $originy
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 14: // #14 diag point in
-            $points = array(
-                $originx+$half, $originy+$half,
-                $originx, $originy+$half,
-                $originx+$half, $originy+$blocksize
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 15: // #15 diag point out
-            $points = array(
-                $originx, $originy,
-                $originx+$half, $originy,
-                $originx, $originy+$half,
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 16:	// #16 diag side point out
-        default:
-            $points = array(
-                $originx, $originy,
-                $originx+$half, $originy,
-                $originx+$half, $originy+$half
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-    } // end switch
+    // Draw first pattern using extracted function
+    drawPatternOnCanvas($im, $i, $originx, $originy, $blocksize, $red, $quarter, $quarter3, $half);
 
     // rotate block
     imagecopy ($rotate_temp, $im, 0, 0, 0, 0, $blocksize, $blocksize);
@@ -224,171 +61,8 @@ function glyph($blocksize,$i,$j,$k,$rot1,$rot2,$fgr,$fgg,$fgb,$fgr2,$fgg2,$fgb2,
     $originy=0;
     $red = imagecolorallocate($im, $fgr2, $fgg2, $fgb2);
 
-    switch($j){
-        case 1: // #1 mountains
-            $points = array(
-                $originx, $originy,
-                $originx+$quarter, $originy+$blocksize,
-                $originx+$half, $originy
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            $points = array(
-                $originx+$half, $originy,
-                $originx+$quarter3, $originy+$blocksize,
-                $originx+$blocksize, $originy
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 2: // #2 half triangle
-            $points = array(
-                $originx, $originy,
-                $originx+$blocksize, $originy,
-                $originx, $originy+$blocksize
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 3: // #3 centre triangle
-            $points = array(
-                $originx, $originy,
-                $originx+$half, $originy+$blocksize,
-                $originx+$blocksize, $originy
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 4: // #4 half block
-            imagefilledrectangle ( $im, $originx, $originy, $originx+$half, $originy+$blocksize, $red);
-            break;
-
-        case 5: // #5 half diamond
-            $points = array(
-                $originx+$quarter, $originy,
-                $originx, $originy+$half,
-                $originx+$quarter, $originy+$blocksize,
-                $originx+$half, $originy+$half
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 6: // #6 spike
-            $points = array(
-                $originx, $originy,
-                $originx+$blocksize, $originy+$half,
-                $originx+$blocksize, $originy+$blocksize,
-                $originx+$half, $originy+$blocksize
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 7: // #7 quarter triangle
-            $points = array(
-                $originx, $originy,
-                $originx+$half, $originy+$blocksize,
-                $originx, $originy+$blocksize
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 8: // #8 diag triangle
-            $points = array(
-                $originx, $originy,
-                $originx+$blocksize, $originy+$half,
-                $originx+$half, $originy+$blocksize
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 9: // #9 centre mini triangle
-            $points = array(
-                $originx+$quarter, $originy+$quarter,
-                $originx+$quarter3, $originy+$quarter,
-                $originx+$quarter, $originy+$quarter3
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 10: // #10 diag mountains
-            $points = array(
-                $originx, $originy,
-                $originx+$half, $originy,
-                $originx+$half, $originy+$half
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            $points = array(
-                $originx+$half, $originy+$half,
-                $originx+$blocksize, $originy+$half,
-                $originx+$blocksize, $originy+$blocksize
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 11: // #11 quarter block
-            imagefilledrectangle ( $im, $originx, $originy, $originx+$half, $originy+$half, $red);
-            break;
-
-        case 12: // #12 point out triangle
-            $points = array(
-                $originx, $originy+$half,
-                $originx+$half, $originy+$blocksize,
-                $originx+$blocksize, $originy+$half
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 13: // #13 point in triangle
-            $points = array(
-                $originx, $originy,
-                $originx+$half, $originy+$half,
-                $originx+$blocksize, $originy
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 14: // #14 diag point in
-            $points = array(
-                $originx+$half, $originy+$half,
-                $originx, $originy+$half,
-                $originx+$half, $originy+$blocksize
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 15: // #15 diag point out
-            $points = array(
-                $originx, $originy,
-                $originx+$half, $originy,
-                $originx, $originy+$half,
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-            break;
-
-        case 16:	// #16 diag side point out
-        default:
-            $points = array(
-                $originx, $originy,
-                $originx+$half, $originy,
-                $originx+$half, $originy+$half
-            );
-            $num = count($points) / 2;
-            imagefilledpolygon($im, $points, $num, $red);
-    } // end switch
+    // Draw second pattern using extracted function
+    drawPatternOnCanvas($im, $j, $originx, $originy, $blocksize, $red, $quarter, $quarter3, $half);
 
     // rotate block
     imagecopy ($rotate_temp, $im, 0, 0, $originx, 0, $blocksize, $blocksize);
@@ -471,6 +145,174 @@ function glyph($blocksize,$i,$j,$k,$rot1,$rot2,$fgr,$fgg,$fgb,$fgr2,$fgg2,$fgb2,
     }
 }
 
+function drawPatternOnCanvas($im, $patternType, $originx, $originy, $blocksize, $red, $quarter, $quarter3, $half) {
+    switch($patternType){
+        case 1: // #1 mountains
+            $points = array(
+                $originx, $originy,
+                $originx+$quarter, $originy+$blocksize,
+                $originx+$half, $originy
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            $points = array(
+                $originx+$half, $originy,
+                $originx+$quarter3, $originy+$blocksize,
+                $originx+$blocksize, $originy
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            break;
+
+        case 2: // #2 half triangle
+            $points = array(
+                $originx, $originy,
+                $originx+$blocksize, $originy,
+                $originx, $originy+$blocksize
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            break;
+
+        case 3: // #3 centre triangle
+            $points = array(
+                $originx, $originy,
+                $originx+$half, $originy+$blocksize,
+                $originx+$blocksize, $originy
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            break;
+
+        case 4: // #4 half block
+            imagefilledrectangle ( $im, $originx, $originy, $originx+$half, $originy+$blocksize, $red);
+            break;
+
+        case 5: // #5 half diamond
+            $points = array(
+                $originx+$quarter, $originy,
+                $originx, $originy+$half,
+                $originx+$quarter, $originy+$blocksize,
+                $originx+$half, $originy+$half
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            break;
+
+        case 6: // #6 spike
+            $points = array(
+                $originx, $originy,
+                $originx+$blocksize, $originy+$half,
+                $originx+$blocksize, $originy+$blocksize,
+                $originx+$half, $originy+$blocksize
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            break;
+
+        case 7: // #7 quarter triangle
+            $points = array(
+                $originx, $originy,
+                $originx+$half, $originy+$blocksize,
+                $originx, $originy+$blocksize
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            break;
+
+        case 8: // #8 diag triangle
+            $points = array(
+                $originx, $originy,
+                $originx+$blocksize, $originy+$half,
+                $originx+$half, $originy+$blocksize
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            break;
+
+        case 9: // #9 centre mini triangle
+            $points = array(
+                $originx+$quarter, $originy+$quarter,
+                $originx+$quarter3, $originy+$quarter,
+                $originx+$quarter, $originy+$quarter3
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            break;
+
+        case 10: // #10 diag mountains
+            $points = array(
+                $originx, $originy,
+                $originx+$half, $originy,
+                $originx+$half, $originy+$half
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            $points = array(
+                $originx+$half, $originy+$half,
+                $originx+$blocksize, $originy+$half,
+                $originx+$blocksize, $originy+$blocksize
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            break;
+
+        case 11: // #11 quarter block
+            imagefilledrectangle ( $im, $originx, $originy, $originx+$half, $originy+$half, $red);
+            break;
+
+        case 12: // #12 point out triangle
+            $points = array(
+                $originx, $originy+$half,
+                $originx+$half, $originy+$blocksize,
+                $originx+$blocksize, $originy+$half
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            break;
+
+        case 13: // #13 point in triangle
+            $points = array(
+                $originx, $originy,
+                $originx+$half, $originy+$half,
+                $originx+$blocksize, $originy
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            break;
+
+        case 14: // #14 diag point in
+            $points = array(
+                $originx+$half, $originy+$half,
+                $originx, $originy+$half,
+                $originx+$half, $originy+$blocksize
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            break;
+
+        case 15: // #15 diag point out
+            $points = array(
+                $originx, $originy,
+                $originx+$half, $originy,
+                $originx, $originy+$half,
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+            break;
+
+        case 16:	// #16 diag side point out
+        default:
+            $points = array(
+                $originx, $originy,
+                $originx+$half, $originy,
+                $originx+$half, $originy+$half
+            );
+            $num = count($points) / 2;
+            imagefilledpolygon($im, $points, $num, $red);
+    } // end switch
+    
+}
 $size=24;
 $filename='test';
 $ip=md5(rand(0,300)); // FIXME test random

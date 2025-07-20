@@ -24,6 +24,10 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.RadialGradient;
+import android.graphics.Shader;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 
 import java.io.ByteArrayOutputStream;
 
@@ -248,7 +252,36 @@ public class VisiglyphsIdenticon extends Identicon {
                 break;
         }
         
+        // Apply radial gradient overlay (matching PHP Visiglyphs finish)
+        applyRadialGradientOverlay(canvas, imgSize, bgR, bgG, bgB);
+        
         return bitmap;
+    }
+    
+    /**
+     * Applies a radial gradient overlay to create the classic Visiglyphs finish effect
+     */
+    private void applyRadialGradientOverlay(Canvas canvas, int imgSize, int bgR, int bgG, int bgB) {
+        float centerX = imgSize / 2.0f;
+        float centerY = imgSize / 2.0f;
+        float radius = imgSize * 0.7f; // Gradient radius
+        
+        // Create radial gradient from transparent center to semi-transparent background color at edges
+        int transparentCenter = Color.argb(0, bgR, bgG, bgB);
+        int semiTransparentEdge = Color.argb(80, bgR, bgG, bgB); // 80/255 = ~31% opacity
+        
+        RadialGradient gradient = new RadialGradient(
+            centerX, centerY, radius,
+            transparentCenter, semiTransparentEdge,
+            Shader.TileMode.CLAMP
+        );
+        
+        Paint gradientPaint = new Paint();
+        gradientPaint.setShader(gradient);
+        gradientPaint.setAntiAlias(true);
+        
+        // Draw the gradient overlay
+        canvas.drawCircle(centerX, centerY, radius, gradientPaint);
     }
 
     /**
