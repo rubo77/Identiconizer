@@ -262,7 +262,7 @@ public class VisiglyphsIdenticon extends Identicon {
         }
         
         // Apply radial gradient overlay (matching PHP Visiglyphs finish)
-        applyRadialGradientOverlay(canvas, imgSize, bgR, bgG, bgB);
+        applyRadialGradientOverlay(canvas, imgSize, fgR, fgG, fgB, fgR2, fgG2, fgB2);
         
         // if we need to resample down
         if (resize > 0) {
@@ -286,25 +286,31 @@ public class VisiglyphsIdenticon extends Identicon {
     
     /**
      * Applies a radial gradient overlay to create the classic Visiglyphs finish effect
+     * Uses the identicon's own foreground colors to create a visible gradient effect
      */
-    private void applyRadialGradientOverlay(Canvas canvas, int imgSize, int bgR, int bgG, int bgB) {
+    private void applyRadialGradientOverlay(Canvas canvas, int imgSize, int fgR, int fgG, int fgB, int fgR2, int fgG2, int fgB2) {
         float centerX = imgSize / 2.0f;
         float centerY = imgSize / 2.0f;
-        float radius = imgSize * 0.7f; // Gradient radius
+        float radius = imgSize * 0.7f; // Slightly larger radius for better coverage
         
-        // Create radial gradient from transparent center to semi-transparent background color at edges
-        int transparentCenter = Color.argb(0, bgR, bgG, bgB);
-        int semiTransparentEdge = Color.argb(80, bgR, bgG, bgB); // 80/255 = ~31% opacity
+        // Create radial gradient using the identicon's own foreground colors
+        // Center: Semi-transparent first foreground color (lighter)
+        // Edge: Semi-transparent second foreground color (darker)
+        int centerColor = Color.argb(30, fgR, fgG, fgB);     // 12% opacity - subtle center
+        int edgeColor = Color.argb(80, fgR2, fgG2, fgB2);    // 31% opacity - more visible edge
         
         RadialGradient gradient = new RadialGradient(
             centerX, centerY, radius,
-            transparentCenter, semiTransparentEdge,
+            centerColor, edgeColor,  // Center to edge: light to dark
             Shader.TileMode.CLAMP
         );
         
         Paint gradientPaint = new Paint();
         gradientPaint.setShader(gradient);
         gradientPaint.setAntiAlias(true);
+        
+        // Use multiply blend mode for better color interaction
+        gradientPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.MULTIPLY));
         
         // Draw the gradient overlay
         canvas.drawCircle(centerX, centerY, radius, gradientPaint);
