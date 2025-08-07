@@ -72,8 +72,20 @@ public class UnicornifyIdenticon extends Identicon {
      * @param hash A 16 byte hash used to generate the identicon
      * @return The bitmap of the identicon created or null if offline and no cached version available
      */
+    /**
+     * Generates a unicornify identicon bitmap using the provided key (email, name, etc.)
+     * Uses per-installation salt for privacy.
+     *
+     * @param key The contact identifier (email, etc.)
+     * @return The bitmap of the identicon created or null if offline and no cached version available
+     */
     @Override
-    public Bitmap generateIdenticonBitmap(byte[] hash) {
+    public Bitmap generateIdenticonBitmap(String key) {
+        if (key == null || key.isEmpty() || mContext == null) return null;
+        // Get per-installation salt
+        String salt = com.germainz.identiconizer.Config.getInstance(mContext).getUnicornifySalt(mContext);
+        String saltedKey = salt + key;
+        byte[] hash = generateHash(saltedKey);
         // Convert hash to hex string
         StringBuilder hexHash = new StringBuilder();
         for (byte b : hash) {
@@ -143,32 +155,6 @@ public class UnicornifyIdenticon extends Identicon {
      * @return The bitmap byte array of the identicon created or null if offline and no cached version available
      */
     @Override
-    public byte[] generateIdenticonByteArray(byte[] hash) {
-        Bitmap bitmap = generateIdenticonBitmap(hash);
-        if (bitmap == null) {
-            return null;
-        }
-        return bitmapToByteArray(bitmap);
-    }
-    
-    /**
-     * Generates an identicon bitmap using the provided key to generate a hash
-     *
-     * @param key A non empty string used to generate a hash when creating the identicon
-     * @return The bitmap of the identicon created
-     */
-    @Override
-    public Bitmap generateIdenticonBitmap(String key) {
-        return generateIdenticonBitmap(generateHash(saltedKey(key)));
-    }
-
-    /**
-     * Generates an identicon bitmap, as a byte array, using the provided key to generate a hash
-     *
-     * @param key A non empty string used to generate a hash when creating the identicon
-     * @return The bitmap byte array of the identicon created or null if offline and no cached version available
-     */
-    @Override
     public byte[] generateIdenticonByteArray(String key) {
         Bitmap bitmap = generateIdenticonBitmap(key);
         if (bitmap == null) {
@@ -176,6 +162,28 @@ public class UnicornifyIdenticon extends Identicon {
         }
         return bitmapToByteArray(bitmap);
     }
+
+    // Deprecated: byte[] version is not used for unicornify anymore
+    @Override
+    public Bitmap generateIdenticonBitmap(byte[] hash) {
+        // Not used for unicornify anymore, kept for compatibility
+        return null;
+    }
+
+    @Override
+    public byte[] generateIdenticonByteArray(byte[] hash) {
+        return null;
+    }
+    // --- Removed duplicate generateIdenticonBitmap(String) and generateIdenticonByteArray(String) below ---
+    
+    /**
+     * Generates an identicon bitmap using the provided key to generate a hash
+     *
+     * @param key A non empty string used to generate a hash when creating the identicon
+     * @return The bitmap of the identicon created
+     */
+    // (Removed duplicate generateIdenticonBitmap(String) and generateIdenticonByteArray(String) here -- now handled above with salt)
+    
     
     /**
      * Saves a bitmap to the local cache

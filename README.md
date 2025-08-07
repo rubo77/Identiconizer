@@ -57,6 +57,24 @@ The identicons will appear as regular profile pictures to other devices and appl
 - If the receiving device has Identiconizer installed: The app will recognize the identicon marker and can manage/replace these images
 - If the receiving device doesn't have Identiconizer: The identicons will appear as normal profile pictures and remain unchanged
 
+## Network Access and Privacy
+
+**Why does Identiconizer need the INTERNET permission?**
+
+Most identicon styles work entirely offline. However, the Unicornify style fetches unique unicorn avatar images from the public [unicornify.pictures](https://unicornify.pictures/) service. For this, the app requires the `INTERNET` permission.
+
+**What data is sent to the network?**
+
+- **No raw contact data is ever sent.**
+- For Unicornify, the app generates a privacy-preserving hash by combining a random per-installation salt with the contact's email (or other key), then computes the MD5 hash of this combination.
+- Only this salted hash is sent to the unicornify server to fetch the avatar image. The salt is unique to your app installation and never leaves your device.
+- This means the unicornify service cannot reverse the hash to obtain any contact information, and unicorn avatars are unique per app install.
+- All other identicon styles (Retro, Contemporary, Spirograph, Dot Matrix, Gmail, Visiglyphs) do not use the network at all.
+
+**Summary:**
+- The network permission is needed only for fetching unicorn avatars.
+- Only anonymized, salted hashes are sent; your contact data is never exposed to the network or third parties.
+
 ## Technical Implementation
 
 **Contact Detection Process:**

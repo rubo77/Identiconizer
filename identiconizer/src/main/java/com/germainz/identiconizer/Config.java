@@ -22,6 +22,8 @@ import android.content.SharedPreferences;
 
 
 public class Config {
+    private static final String PREF_UNICORNIFY_SALT = "unicornify_salt";
+
     private static Config mInstance;
     private SharedPreferences mPreferences = null;
 
@@ -44,6 +46,27 @@ public class Config {
     private Config(Context context) {
         mPreferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
+
+    /**
+     * Returns a per-installation salt for unicornify hashing. Generates and stores it if not present.
+     */
+    public String getUnicornifySalt(Context context) {
+        String salt = mPreferences.getString(PREF_UNICORNIFY_SALT, null);
+        if (salt == null) {
+            // Generate 16 random bytes, hex-encoded
+            java.security.SecureRandom random = new java.security.SecureRandom();
+            byte[] saltBytes = new byte[16];
+            random.nextBytes(saltBytes);
+            StringBuilder sb = new StringBuilder();
+            for (byte b : saltBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            salt = sb.toString();
+            mPreferences.edit().putString(PREF_UNICORNIFY_SALT, salt).apply();
+        }
+        return salt;
+    }
+
 
     public static Config getInstance(Context context) {
         if (mInstance == null)

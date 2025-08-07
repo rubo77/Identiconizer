@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="identiconizer">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-07-20T13:49:09.604120992Z">
+        <DropdownSelection timestamp="2025-08-06T08:46:09.142344882Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=/home/ruben/.android/avd/Copy_of_Pixel_8_Pro_API_34.avd" />
