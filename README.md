@@ -1,9 +1,17 @@
-Identiconizer!
-==============
+Identiconizer! - Android Contact Identicons App
+===============================================
+
+[![F-Droid](https://img.shields.io/f-droid/v/com.germainz.identiconizer.svg)](https://f-droid.org/packages/com.germainz.identiconizer/)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+**Generate unique geometric avatars for Android contacts automatically**
+
 This is a port of ChameleonOS' contact identicons feature (available in the
-JellyBean versions) with some additional features and fixes.
+JellyBean versions) with additional features and fixes for modern Android.
 When enabled, new contacts will be assigned a unique identicon instead of the
 default picture.
+
+> **Keywords:** android app, contact management, identicons, avatars, profile pictures, geometric patterns, contact photos, xposed framework, f-droid
 
 Features
 ========
@@ -40,6 +48,16 @@ Links
 =====
 * [XDA Thread](http://forum.xda-developers.com/showthread.php?t=2718943)
 * [F-Droid Page](https://f-droid.org/packages/com.germainz.identiconizer/)
+
+## Topics and Keywords
+This repository contains an **Android application** for **contact management** that generates **identicons** and **avatars**. It's available on **F-Droid** and supports the **Xposed Framework**. Keywords: android app, contact photos, profile pictures, geometric patterns, avatar generator.
+
+## For Developers
+- **Language:** Java
+- **Platform:** Android (API 35+)
+- **Build System:** Gradle
+- **Distribution:** F-Droid
+- **Framework:** Android SDK + Xposed (optional)
 
 Development
 ===========
